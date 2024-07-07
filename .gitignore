@@ -1,0 +1,4 @@
+.cert
+certificado_public.pem
+certificado.p12
+__pycache__
