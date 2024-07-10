@@ -30,9 +30,8 @@ class InterfaceExtrator:
         botao_extrair = tk.Button(self.janela, text="Extrair Chave Pública", command=self.extrair_chave_publica)
         botao_extrair.pack(pady=(10,0))
 
-        # Botão Analisar Certificado (inicialmente não visível)
+        # Botão Analisar Certificado (agora visível desde o início)
         self.btn_analisar = tk.Button(self.janela, text="Analisar Certificado", command=self.analisar_certificado)
-        # O botão não é exibido imediatamente (não chame pack, grid ou place aqui)
 
     def iniciar_interface(self):
         self.janela.mainloop()
@@ -76,17 +75,21 @@ class InterfaceExtrator:
         caminho_arquivo = self.entrada_caminho_arquivo.get()
         senha = self.entrada_senha.get()
         try:
-            extrator.extrair_chave_publica(caminho_arquivo, senha)
+            chave_publica = extrator.extrair_chave_publica(caminho_arquivo, senha)
+            self.chave_publica = chave_publica
             messagebox.showinfo("Extração de chave pública", "Chave pública extraída com sucesso!")
-            sucesso = True  # Substitua isso pela sua lógica de sucesso real
-            if sucesso:
-                self.btn_analisar.pack(side=tk.LEFT)  # Exibe o botão ao lado do botão Extrair
+            self.btn_analisar.pack(side=tk.TOP, pady=(10, 10))
         except Exception as e:
             messagebox.showerror("Erro", str(e))
 
     def analisar_certificado(self):
-        # Aqui vai a lógica para analisar o certificado
-        print("Analisando o certificado...")
+        # Supondo que a chave pública esteja armazenada em self.chave_publica
+        try:
+            if hasattr(self, 'chave_publica'):
+                resultado_analise = analisar_certificado.iniciar_programa(self.chave_publica)
+                messagebox.showinfo("Análise de certificado", resultado_analise)
+        except Exception as e:      
+            messagebox.showerror("Erro", str(e))
 
 
 if __name__ == "__main__":
