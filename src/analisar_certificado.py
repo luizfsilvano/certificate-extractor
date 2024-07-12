@@ -45,8 +45,11 @@ def analisar_certificado(certificado_caminho, text_output):
 def iniciar_programa(chave_publica):
     window = tk.Tk()
     window.title("Analisar Certificado")
+    window.iconbitmap('img/icon.ico')
 
-    text_output = tk.Text(window, height=5, width=75)
+    window.resizable(False, False)
+
+    text_output = tk.Text(window, height=5, width=75, font=("Arial", 10))
     text_output.pack()
 
     # Chama a função analisar_certificado após a criação do text_output

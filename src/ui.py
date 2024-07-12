@@ -2,17 +2,35 @@ import tkinter as tk
 from tkinter import filedialog, messagebox
 import extrator
 import analisar_certificado
+from PIL import Image, ImageTk
 
 class InterfaceExtrator:
     def __init__(self):
         self.janela = tk.Tk()
         self.janela.title("Extrator de Chave Pública")
+        self.janela.iconbitmap('img/icon.ico')
+        self.janela.config()
+        
+        # self.janela.maxsize(800, 600)
+        self.janela.resizable(False, False)
+
+        # Adiciona o tratamento para o evento de fechamento da janela
+        self.janela.protocol("WM_DELETE_WINDOW", self.on_close)
+
+        # carrega a imagem de fundo
+        self.imagem_fundo = Image.open("img/v904-nunny-010-e.jpg")
+        self.imagem_fundo = self.imagem_fundo.resize((800, 600), Image.Resampling.LANCZOS)  # Ajusta o tamanho da imagem conforme necessário
+        self.foto_fundo = ImageTk.PhotoImage(self.imagem_fundo)
+
+        # Cria um Label para a imagem de fundo e o posiciona
+        self.label_fundo = tk.Label(self.janela, image=self.foto_fundo)
+        self.label_fundo.place(x=0, y=0, relwidth=1, relheight=1)
 
         frame = tk.Frame(self.janela)
         frame.pack(padx=10, pady=10)
 
         self.placeholder_text = "Selecione um arquivo..."
-        self.entrada_caminho_arquivo = tk.Entry(frame, width=30)
+        self.entrada_caminho_arquivo = tk.Entry(frame, width=30, relief='flat', font=('Arial', 10))
         self.entrada_caminho_arquivo.pack(side=tk.LEFT, padx=(0,10))
         self.entrada_caminho_arquivo.insert(0, self.placeholder_text)
         self.entrada_caminho_arquivo.bind("<FocusIn>", self.remover_placeholder)
@@ -21,17 +39,23 @@ class InterfaceExtrator:
 
         # Configuração do campo de senha
         self.placeholder_senha = "Digite sua senha..."
-        self.entrada_senha = tk.Entry(self.janela, width=20)
+        self.entrada_senha = tk.Entry(self.janela, width=20, relief='flat', font=('Arial', 10))
         self.entrada_senha.insert(0, self.placeholder_senha)
         self.entrada_senha.bind("<FocusIn>", self.on_focus_in_senha)
         self.entrada_senha.bind("<FocusOut>", self.on_focus_out_senha)
         self.entrada_senha.pack()
 
-        botao_extrair = tk.Button(self.janela, text="Extrair Chave Pública", command=self.extrair_chave_publica)
-        botao_extrair.pack(pady=(10,0))
+        botao_extrair = tk.Button(self.janela, text="Extrair Chave Pública", command=self.extrair_chave_publica, font=('Arial', 10), relief='flat')
+        botao_extrair.pack(pady=(10,10))
 
         # Botão Analisar Certificado (agora visível desde o início)
-        self.btn_analisar = tk.Button(self.janela, text="Analisar Certificado", command=self.analisar_certificado)
+        self.btn_analisar = tk.Button(self.janela, text="Analisar Certificado", command=self.analisar_certificado, font=('Arial', 10), relief='flat')
+
+    def on_close(self):
+        # Aqui você pode adicionar uma mensagem de confirmação se desejar
+        # Por exemplo:
+        if messagebox.askokcancel("Sair", "Você realmente deseja sair?"):
+            self.janela.destroy() 
 
     def iniciar_interface(self):
         self.janela.mainloop()
@@ -78,7 +102,7 @@ class InterfaceExtrator:
             chave_publica = extrator.extrair_chave_publica(caminho_arquivo, senha)
             self.chave_publica = chave_publica
             messagebox.showinfo("Extração de chave pública", "Chave pública extraída com sucesso!")
-            self.btn_analisar.pack(side=tk.TOP, pady=(10, 10))
+            self.btn_analisar.pack(side=tk.TOP, pady=(0, 10))
         except Exception as e:
             messagebox.showerror("Erro", str(e))
 
