@@ -3,6 +3,18 @@ from tkinter import filedialog
 from cryptography import x509
 from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives import serialization
+import sys, os
+
+# Função para determinar se o script está sendo executado como um executável
+def resource_path(relative_path):
+    """ Retorna o caminho absoluto para o recurso, para uso em PyInstaller """
+    try:
+        # PyInstaller cria um diretório temporário e armazena o caminho em _MEIPASS
+        base_path = sys._MEIPASS
+    except Exception:
+        base_path = os.path.abspath(".")
+
+    return os.path.join(base_path, relative_path)
 
 def formatar_cnpj(cnpj):
     cnpj_formatado = "".join(filter(str.isdigit, cnpj))
@@ -45,7 +57,7 @@ def analisar_certificado(certificado_caminho, text_output):
 def iniciar_programa(chave_publica):
     window = tk.Tk()
     window.title("Analisar Certificado")
-    window.iconbitmap('img/icon.ico')
+    window.iconbitmap(resource_path('icon.ico'))
 
     window.resizable(False, False)
 

@@ -3,12 +3,24 @@ from tkinter import filedialog, messagebox
 import extrator
 import analisar_certificado
 from PIL import Image, ImageTk
+import sys, os
+
+# Função para determinar se o script está sendo executado como um executável
+def resource_path(relative_path):
+    """ Retorna o caminho absoluto para o recurso, para uso em PyInstaller """
+    try:
+        # PyInstaller cria um diretório temporário e armazena o caminho em _MEIPASS
+        base_path = sys._MEIPASS
+    except Exception:
+        base_path = os.path.abspath(".")
+
+    return os.path.join(base_path, relative_path)
 
 class InterfaceExtrator:
     def __init__(self):
         self.janela = tk.Tk()
         self.janela.title("Extrator de Chave Pública")
-        self.janela.iconbitmap('img/icon.ico')
+        self.janela.iconbitmap(resource_path('icon.ico'))
         self.janela.config()
         
         # self.janela.maxsize(800, 600)
@@ -18,7 +30,7 @@ class InterfaceExtrator:
         self.janela.protocol("WM_DELETE_WINDOW", self.on_close)
 
         # carrega a imagem de fundo
-        self.imagem_fundo = Image.open("img/v904-nunny-010-e.jpg")
+        self.imagem_fundo = Image.open(resource_path("v904-nunny-010-e.jpg"))
         self.imagem_fundo = self.imagem_fundo.resize((800, 600), Image.Resampling.LANCZOS)  # Ajusta o tamanho da imagem conforme necessário
         self.foto_fundo = ImageTk.PhotoImage(self.imagem_fundo)
 

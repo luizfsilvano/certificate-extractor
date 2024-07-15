@@ -2,3 +2,6 @@
 certificado_public.pem
 certificado.p12
 __pycache__
+output
+Extrator.exe
+main.exe
