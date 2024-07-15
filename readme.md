@@ -14,7 +14,7 @@ pip install cryptography
 
 ## Usage
 
- You can download the lastest release right [here](https://github.com/luizfsilvano/certificate-extrator/releases/tag/v0.1.0-alpha)
+ You can download the lastest release right [here](https://github.com/luizfsilvano/certificate-extrator/releases/tag/v0.2.0-alpha)
 
 
 ## Running locally
