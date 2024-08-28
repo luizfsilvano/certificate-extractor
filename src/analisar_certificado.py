@@ -21,6 +21,12 @@ def formatar_cnpj(cnpj):
     cnpj_formatado = f"{cnpj_formatado[:2]}.{cnpj_formatado[2:5]}.{cnpj_formatado[5:8]}/{cnpj_formatado[8:12]}-{cnpj_formatado[12:]}"
     return cnpj_formatado
 
+def formatar_cpf(cpf):
+    cpf_formatado = "".join(filter(str.isdigit, cpf))
+    cpf_formatado = f"{cpf_formatado[:3]}.{cpf_formatado[3:6]}.{cpf_formatado[6:9]}-{cpf_formatado[9:]}"
+    return cpf_formatado
+
+
 def analisar_certificado(certificado_caminho, text_output):
     with open(certificado_caminho, 'rb') as cert_file:
         certificado_dados = cert_file.read()
@@ -44,10 +50,15 @@ def analisar_certificado(certificado_caminho, text_output):
 
     cnpj_posicao = cn.find(":") + 1
     if cnpj_posicao > 0:
-        cnpj = cn[cnpj_posicao:].strip()
-        text_output.insert(tk.END, f"CNPJ encontrado: {formatar_cnpj(cnpj)}\n")
+        identificador = cn[cnpj_posicao:].strip()
+        if len(identificador) == 14:
+            text_output.insert(tk.END, f"CNPJ encontrado: {formatar_cnpj(identificador)}\n")
+        elif len(identificador) == 11:
+            text_output.insert(tk.END, f"CPF encontrado: {formatar_cpf(identificador)}\n")
+        else:
+            text_output.insert(tk.END, "Identificador não reconhecido.\n")
     else:
-        text_output.insert(tk.END, "CNPJ não encontrado no CN.\n")
+        text_output.insert(tk.END, "CNPJ ou CPF não encontrado no CN.\n")
 
     data_criacao_formatada = certificado.not_valid_before_utc.strftime('%Y-%m-%d')
     data_expiracao_formatada = certificado.not_valid_after_utc.strftime('%Y-%m-%d')
