@@ -19,11 +19,10 @@ def resource_path(relative_path):
 class InterfaceExtrator:
     def __init__(self):
         self.janela = tk.Tk()
-        self.janela.title("Extrator de Chave Pública")
+        self.janela.title("Extrator e Analisador de Certificados")
         self.janela.iconbitmap(resource_path('icon.ico'))
         self.janela.config()
         
-        # self.janela.maxsize(800, 600)
         self.janela.resizable(False, False)
 
         # Adiciona o tratamento para o evento de fechamento da janela
@@ -38,30 +37,44 @@ class InterfaceExtrator:
         self.label_fundo = tk.Label(self.janela, image=self.foto_fundo)
         self.label_fundo.place(x=0, y=0, relwidth=1, relheight=1)
 
-        frame = tk.Frame(self.janela)
-        frame.pack(padx=10, pady=10)
+        self.chave_publica = None
 
-        self.placeholder_text = "Selecione um arquivo..."
-        self.entrada_caminho_arquivo = tk.Entry(frame, width=30, relief='flat', font=('Arial', 10))
-        self.entrada_caminho_arquivo.pack(side=tk.LEFT, padx=(0,10))
-        self.entrada_caminho_arquivo.insert(0, self.placeholder_text)
+        # Estilo padrão para botões
+        estilo_botao = {'font': ('Arial', 8), 'bg': '#4CAF50', 'fg': 'white', 'relief': 'raised', 'padx': 8, 'pady': 3}
+
+        # Frame para extração de chave pública
+        frame_extracao = tk.LabelFrame(self.janela, text="Extração de Chave Pública", font=('Arial', 10, 'bold'))
+        frame_extracao.pack(padx=10, pady=10, fill="x")
+
+        self.entrada_caminho_arquivo = tk.Entry(frame_extracao, width=30, relief='sunken', font=('Arial', 10))
+        self.entrada_caminho_arquivo.pack(side=tk.LEFT, padx=(5,5), pady=5)
+        self.entrada_caminho_arquivo.insert(0, "Selecione um arquivo PFX...")
         self.entrada_caminho_arquivo.bind("<FocusIn>", self.remover_placeholder)
         self.entrada_caminho_arquivo.bind("<FocusOut>", self.adicionar_placeholder)
-        self.entrada_caminho_arquivo.bind("<Button-1>", self.selecionar_arquivo)
+        self.entrada_caminho_arquivo.bind("<Button-1>", self.selecionar_arquivo_pfx)
 
-        # Configuração do campo de senha
-        self.placeholder_senha = "Digite sua senha..."
-        self.entrada_senha = tk.Entry(self.janela, width=20, relief='flat', font=('Arial', 10))
-        self.entrada_senha.insert(0, self.placeholder_senha)
+        self.entrada_senha = tk.Entry(frame_extracao, width=20, relief='sunken', font=('Arial', 10), show="*")
+        self.entrada_senha.pack(side=tk.LEFT, padx=(5,5), pady=5)
+        self.entrada_senha.insert(0, "Senha")
         self.entrada_senha.bind("<FocusIn>", self.on_focus_in_senha)
         self.entrada_senha.bind("<FocusOut>", self.on_focus_out_senha)
-        self.entrada_senha.pack()
 
-        botao_extrair = tk.Button(self.janela, text="Extrair Chave Pública", command=self.extrair_chave_publica, font=('Arial', 10), relief='flat')
-        botao_extrair.pack(pady=(10,10))
+        botao_extrair = tk.Button(frame_extracao, text="Extrair Chave Pública", command=self.extrair_chave_publica, **estilo_botao)
+        botao_extrair.pack(side=tk.LEFT, padx=(5,5), pady=5)
 
-        # Botão Analisar Certificado (agora visível desde o início)
-        self.btn_analisar = tk.Button(self.janela, text="Analisar Certificado", command=self.analisar_certificado, font=('Arial', 10), relief='flat')
+        # Frame para análise de certificado
+        frame_analise = tk.LabelFrame(self.janela, text="Análise de Certificado", font=('Arial', 10, 'bold'))
+        frame_analise.pack(padx=10, pady=10, fill="x")
+
+        self.entrada_chave_publica = tk.Entry(frame_analise, width=30, relief='sunken', font=('Arial', 10))
+        self.entrada_chave_publica.pack(side=tk.LEFT, padx=(5,5), pady=5)
+        self.entrada_chave_publica.insert(0, "Selecione um arquivo PEM...")
+        self.entrada_chave_publica.bind("<FocusIn>", self.remover_placeholder)
+        self.entrada_chave_publica.bind("<FocusOut>", self.adicionar_placeholder)
+        self.entrada_chave_publica.bind("<Button-1>", self.selecionar_arquivo_pem)
+
+        self.btn_analisar = tk.Button(frame_analise, text="Analisar Certificado", command=self.analisar_certificado, **estilo_botao)
+        self.btn_analisar.pack(side=tk.LEFT, padx=(5,5), pady=5)
 
     def on_close(self):
         # Aqui você pode adicionar uma mensagem de confirmação se desejar
@@ -100,33 +113,41 @@ class InterfaceExtrator:
         elif not widget.get():
             widget.insert(0, self.placeholder_text)  # Adiciona o placeholder para outros campos
 
-    def selecionar_arquivo(self, event):
-        caminho_arquivo = filedialog.askopenfilename()
-        if caminho_arquivo:  # Verifica se um arquivo foi selecionado
+    def selecionar_arquivo_pfx(self, event):
+        caminho_arquivo = filedialog.askopenfilename(filetypes=[("Arquivos PFX", "*.pfx")])
+        if caminho_arquivo:
             self.entrada_caminho_arquivo.delete(0, tk.END)
             self.entrada_caminho_arquivo.insert(0, caminho_arquivo)
             self.entrada_caminho_arquivo.config(fg='black')
+
+    def selecionar_arquivo_pem(self, event):
+        caminho_arquivo = filedialog.askopenfilename(filetypes=[("Arquivos PEM", "*.pem")])
+        if caminho_arquivo:
+            self.entrada_chave_publica.delete(0, tk.END)
+            self.entrada_chave_publica.insert(0, caminho_arquivo)
+            self.entrada_chave_publica.config(fg='black')
+            self.chave_publica = caminho_arquivo
 
     def extrair_chave_publica(self):
         caminho_arquivo = self.entrada_caminho_arquivo.get()
         senha = self.entrada_senha.get()
         try:
-            chave_publica = extrator.extrair_chave_publica(caminho_arquivo, senha)
-            self.chave_publica = chave_publica
+            self.chave_publica = extrator.extrair_chave_publica(caminho_arquivo, senha)
+            self.entrada_chave_publica.delete(0, tk.END)
+            self.entrada_chave_publica.insert(0, self.chave_publica)
             messagebox.showinfo("Extração de chave pública", "Chave pública extraída com sucesso!")
-            self.btn_analisar.pack(side=tk.TOP, pady=(0, 10))
         except Exception as e:
             messagebox.showerror("Erro", str(e))
 
     def analisar_certificado(self):
-        # Supondo que a chave pública esteja armazenada em self.chave_publica
+        caminho_chave_publica = self.entrada_chave_publica.get()
+        if not caminho_chave_publica or caminho_chave_publica == "Selecione um arquivo PEM...":
+            messagebox.showwarning("Aviso", "Por favor, selecione um arquivo de chave pública PEM.")
+            return
         try:
-            if hasattr(self, 'chave_publica'):
-                resultado_analise = analisar_certificado.iniciar_programa(self.chave_publica)
-                messagebox.showinfo("Análise de certificado", resultado_analise)
-        except Exception as e:      
-            messagebox.showerror("Erro", str(e))
-
+            analisar_certificado.iniciar_programa(caminho_chave_publica)
+        except Exception as e:
+            messagebox.showerror("Erro", f"Erro ao analisar o certificado: {str(e)}")
 
 if __name__ == "__main__":
     app = InterfaceExtrator()
